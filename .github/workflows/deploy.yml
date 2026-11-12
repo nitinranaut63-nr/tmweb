@@ -1,0 +1,52 @@
+
+name: Django CI/CD Deployment
+
+on:
+  push:
+    branches:
+      - devops-modernization
+
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Test and Deploy to AWS EC2
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Django system check
+        env:
+          DJANGO_SECRET_KEY: ci-test-secret-key
+          DJANGO_DEBUG: "True"
+          DJANGO_HOSTS: localhost,127.0.0.1
+        run: python manage.py check
+
+      - name: Deploy to AWS EC2
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd /home/ubuntu/tmweb
+            git fetch origin
+            git reset --hard origin/devops-modernization
+            source venv/bin/activate
+            pip install -r requirements.txt
+            python manage.py migrate
+            python manage.py collectstatic --noinput
+            sudo systemctl restart tmweb
+            sudo systemctl is-active tmweb
