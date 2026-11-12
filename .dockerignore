@@ -1,0 +1,10 @@
+venv/
+.git/
+.github/
+.env
+__pycache__/
+*.pyc
+staticfiles/
+db.sqlite3
+requirements-original.txt
+
