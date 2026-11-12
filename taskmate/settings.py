@@ -1,4 +1,4 @@
-import django_heroku
+
 import os
 import environ
 
@@ -18,7 +18,7 @@ SECRET_KEY = env('DJANGO_SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DJANGO_DEBUG')
 
-ALLOWED_HOSTS = env('DJANGO_HOSTS')
+ALLOWED_HOSTS = env.list('DJANGO_HOSTS', default=[])
 
 # Application definition
 
@@ -121,4 +121,4 @@ CRISPY_TEMPLATE_PACK = 'bootstrap4'
 LOGIN_REDIRECT_URL = "todolist"
 LOGIN_URL = "login"
 
-django_heroku.settings(locals())
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
